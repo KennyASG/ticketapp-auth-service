@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: kennyadg/auth-service:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              value: "postgres://admin:admin@10.241.222.216:30432/ticketapp"
+            - name: JWT_SECRET
+              value: "supersecret"
+            - name: PORT
+              value: "3000"
+          # 👇 Necesario para que el HPA tenga métricas
+          resources:
+            requests:
+              cpu: 100m      # 0.1 CPU mínima
+              memory: 128Mi  # 128 MB mínima
+            limits:
+              cpu: 500m      # 0.5 CPU máxima
+              memory: 256Mi  # 256 MB máxima
