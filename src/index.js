@@ -1,33 +1,55 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const sequelize = require("./db");
-const authRoutes = require("./routes/authRoute");
-//redeploy
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const app = express();
-const port = process.env.PORT || 3000;
+
+// ✅ Configuración CORS segura y funcional (incluye preflight)
+const allowedOrigins = [
+  "https://frontend.ingeniebrios.work.gd",
+  "http://localhost:5173" // opcional para desarrollo local
+];
 
 app.use(cors({
-  origin: "*",
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
-  credentials: false
+  origin: function (origin, callback) {
+    // Permitir solicitudes sin origen (como Postman) o de dominios permitidos
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`❌ CORS bloqueado para origen: ${origin}`);
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 
+// ✅ Middleware para manejar OPTIONS (preflight)
+app.options("*", cors());
+
+// ✅ Body parser
 app.use(express.json());
 
-app.use("/auth", authRoutes);
-
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", service: "auth-service", timestamp: new Date().toISOString() });
+// ✅ Ejemplo de ruta de login
+app.post("/auth/login", (req, res) => {
+  const { email, password } = req.body;
+  if (email === "admin@demo.com" && password === "1234") {
+    res.json({ message: "Login exitoso", token: "fake-jwt-token" });
+  } else {
+    res.status(401).json({ message: "Credenciales incorrectas" });
+  }
 });
 
-(async () => {
-  try {
-    await sequelize.sync();
-    console.log("Database connected and synced");
-    app.listen(port, "0.0.0.0", () => console.log(`Auth service running on port ${port}`));
-  } catch (err) {
-    console.error("Unable to connect to DB, please check:", err);
-  }
-})();
+// ✅ Ruta base de prueba
+app.get("/", (req, res) => {
+  res.send("Servidor backend operativo 🚀");
+});
+
+// ✅ Arrancar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Servidor corriendo en puerto ${PORT}`);
+});
