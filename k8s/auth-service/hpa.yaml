@@ -9,8 +9,8 @@ spec:
     kind: Deployment
     name: auth-service
 
-  minReplicas: 1
-  maxReplicas: 5
+  minReplicas: 5
+  maxReplicas: 10
 
   metrics:
     - type: Resource

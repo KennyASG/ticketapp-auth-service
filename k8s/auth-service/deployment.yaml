@@ -31,5 +31,5 @@ spec:
               cpu: 100m      # 0.1 CPU mínima
               memory: 128Mi  # 128 MB mínima
             limits:
-              cpu: 500m      # 0.5 CPU máxima
-              memory: 256Mi  # 256 MB máxima
+              cpu: 1000m      # 0.5 CPU máxima
+              memory: 500Mi  # 256 MB máxima
